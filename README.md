@@ -4,11 +4,11 @@
 
 ## 例
 
- "2015/04/32"<br>
+ "2015/05/31"<br>
  ↓<br>
 :call reformatedate#reformat()<br>
  ↓<br>
- "2015/05/01"
+ "2015/06/01"
 
 ## インストール例
 ~/vim/autoloadにreformatdate.vimを置き、
