@@ -2,11 +2,12 @@
 " ReformatDate
 " 「%Y/%m/%d」の文字列を再フォーマットします。
 " 例
-" 「2015/04/32」 → 「2015/05/01」
+" 「2015/05/32」 → 「2015/06/01」
 " 気が向いたら他のフォーマットにも対応させるかも。
 "
-" 使い方の例
-" .vimrcに以下を追加する
+" インストール例
+" ~/vim/autoloadにreformatdate.vimを置き、.vimrcで適当にマッピングを
+" 指定してください。
 "
 "    " 「%Y/%m/%d」の文字列を加算減算
 "    nnoremap <silent> <C-a> <C-a>:call reformatdate#reformat()<CR>
@@ -15,14 +16,17 @@
 "    nnoremap <silent> <F6> :call reformatdate#reformat(localtime())<CR>
 "
 " -------------------------------------------------------------------
+
 function! s:Mlen(str)
 	return len(substitute(a:str, '.', 'x', 'g'))
 endfunction
+
 function! s:YmdToSec(y, m, d)
 	let l:y = a:m < 3 ? a:y - 1 : a:y
 	let l:m = a:m < 3 ? 12 + a:m : a:m
 	return (365 * l:y + l:y / 4 - l:y / 100 + l:y / 400 + 306 * (l:m + 1) / 10 + a:d - 428 - 719163) * 86400 " 1970/01/01=719163
 endfunction
+
 function! reformatdate#reformat(...)
 	let ymd_reg = '\<\(\d\{4}\)/\(-\{-}\d\{1,3}\)/\(-\{-}\d\{1,3}\)'
 	let l:start = match(getline('.'), l:ymd_reg, col('.') - 12) + 1
