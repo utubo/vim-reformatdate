@@ -4,7 +4,7 @@
 
 ## 例
 
- "2015/05/31"<br>
+ "2015/05/32"<br>
  ↓<br>
 :call reformatedate#reformat()<br>
  ↓<br>
