@@ -28,7 +28,7 @@ function! s:YmdToSec(y, m, d)
 endfunction
 
 function! reformatdate#reformat(...)
-	let ymd_reg = '\<\(\d\{4}\)/\(-\{-}\d\{1,3}\)/\(-\{-}\d\{1,3}\)'
+	let ymd_reg = '\<\(\d\{4}\)/\(\d\{1,3}\)/\(\d\{1,3}\)'
 	let l:start = match(getline('.'), l:ymd_reg, col('.') - 12) + 1
 	if l:start < 1 || col('.') + 12 < l:start
 		return
@@ -37,7 +37,7 @@ function! reformatdate#reformat(...)
 	let l:ymd = matchlist(getline('.'), l:ymd_reg, col('.') - 12)
 	let l:dt = a:0 != 0 ? a:1 : s:YmdToSec(str2nr(l:ymd[1]), str2nr(l:ymd[2]), str2nr(l:ymd[3]))
 	" 再フォーマットして置き換え
-	let l:col_org = col('.') " ('.')ノ < Hello !
+	let l:cur = getpos('.') " ('.')ノ < Hello !
 	call cursor(0, l:start)
 	execute 'normal "_'.s:Mlen(l:ymd[0]).'s'.strftime('%Y/%m/%d', l:dt)."\<ESC>"
 	" 近くに曜日があったらそれも更新する
@@ -51,6 +51,6 @@ function! reformatdate#reformat(...)
 		endif
 	endfor
 	" カーソル位置を元に戻して終わり
-	call cursor(0, l:col_org) " ('.')ﾉｼ < bye.
+	call setpos('.', l:cur) " ('.')ﾉｼ < bye.
 endfunction
 
