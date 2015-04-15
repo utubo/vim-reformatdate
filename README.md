@@ -11,7 +11,7 @@
  "2015/06/01"
 
 ## インストール例
-~/vim/autoloadにreformatdate.vimを置き、
+~/.vim/autoloadにreformatdate.vimを置き、
 .vimrcで適当にマッピングを指定してください。
 
     " 「%Y/%m/%d」の文字列を加算減算
