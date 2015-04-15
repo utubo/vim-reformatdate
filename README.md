@@ -1,6 +1,6 @@
 # vim-reformatdate
 カーソル位置の「%Y/%m/%d」の文字列を再フォーマットします。
-気が向いたら他のフォーマットにも対応させるかも。
+自分用に作っただけなので適当です。
 
 ## 例
 
@@ -19,4 +19,12 @@
     nnoremap <silent> <C-x> <C-x>:call reformatdate#reformat()<CR>
     " 「%Y/%m/%d」の文字列を今日の日付に置換
     nnoremap <silent> <F6> :call reformatdate#reformat(localtime())<CR>
+
+## 設定
+以下のように対応するフォーマットを指定できます。
+
+    let g:reformatdate_formats = ['%Y/%m/%d', '%d-%m-%Y']
+
+「%Y」と「%d」と「%m」だけ使えます。気が向いたら他にも対応させるかも。
+「-」区切りだと<C-a>で減算されちゃうけど気になる人は他のプラグイン使えばいいよ
 
