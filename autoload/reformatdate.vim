@@ -51,7 +51,7 @@ function! reformatdate#reformat(...)
 	for l:fmt in g:reformatdate_formats
 		let l:reg = substitute(substitute(l:fmt, '%Y', '\\(\\d\\{4}\\)', ''), '%[md]', '\\(\\d\\{1,2}\\)', 'g')
 		let l:len = len(substitute(l:fmt, '%Y', '9999', ''))
-		let l:start = match(getline('.'), l:reg, col('.') - len) + 1
+		let l:start = match(getline('.'), l:reg, col('.') - l:len) + 1
 		if 0 < l:start && l:start <= col('.') + l:len
 			let l:is_match = 1
 			break
@@ -61,28 +61,31 @@ function! reformatdate#reformat(...)
 		return
 	endif
 
-	" 「%Y/%m/%d」を辞書に抽出
-	let l:ymd = {}
-	" デフォ値
-	for l:i in ['Y', 'm', 'd']
-		let l:n = strftime(l:i)
-		let l:ymd['%'.l:i] = str2nr(strftime('%'.l:i))
-	endfor
-	let l:index = 0
-	let l:offset = -1
 	let l:ymd_match = matchlist(getline('.'), l:reg, col('.') - l:len)
-	while 1
-		let l:offset = match(l:fmt, '%\zs[Ymd]', l:offset + 1)
-		if 0 < l:offset
-			let l:index += 1
-			let l:ymd[l:fmt[l:offset]] = str2nr(l:ymd_match[l:index])
-		else
-			break
-		endif
-	endwhile
-
-	" 1970/01/01からの経過秒に変換
-	let l:dt = a:0 ? a:1 : s:YmdToSec(l:ymd['Y'], l:ymd['m'], l:ymd['d'])
+	if a:0
+		" 引数で指定された場合
+		let l:dt = a:1
+	else
+		" 「%Y/%m/%d」を辞書に抽出
+		let l:ymd = {}
+		" デフォ値
+		for l:i in ['Y', 'm', 'd']
+			let l:ymd[l:i] = str2nr(strftime('%'.l:i))
+		endfor
+		let l:index = 0
+		let l:offset = -1
+		while 1
+			let l:offset = match(l:fmt, '%\zs[Ymd]', l:offset + 1)
+			if 0 < l:offset
+				let l:index += 1
+				let l:ymd[l:fmt[l:offset]] = str2nr(l:ymd_match[l:index])
+			else
+				break
+			endif
+		endwhile
+		" 1970/01/01からの経過秒に変換
+		let l:dt = s:YmdToSec(l:ymd['Y'], l:ymd['m'], l:ymd['d'])
+	endif
 
 	" 再フォーマットして置き換え
 	let l:cur = getpos('.') " ('.')ノ < Hello !
