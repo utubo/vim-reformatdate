@@ -39,14 +39,14 @@ function! reformatdate#reformat(...)
 	" 再フォーマットして置き換え
 	let l:cur = getpos('.') " ('.')ノ < Hello !
 	call cursor(0, l:start)
-	execute 'normal "_'.s:Mlen(l:ymd[0]).'s'.strftime('%Y/%m/%d', l:dt)."\<ESC>"
+	execute 'normal! "_'.s:Mlen(l:ymd[0]).'s'.strftime('%Y/%m/%d', l:dt)."\<ESC>"
 	" 近くに曜日があったらそれも更新する
 	for l:i in range(0, 6)
 		let l:a = strftime('%a', l:i * 86400)
 		let l:a_pos = match(getline('.'), l:a, col('.')) + 1
 		if 0 < l:a_pos && l:a_pos < col('.') + 3
 			call cursor(0, l:a_pos)
-			execute 'normal "_'.s:Mlen(l:a).'s'.strftime('%a', l:dt)."\<ESC>"
+			execute 'normal! "_'.s:Mlen(l:a).'s'.strftime('%a', l:dt)."\<ESC>"
 			break
 		endif
 	endfor
