@@ -35,13 +35,11 @@ function! s:YmdToSec(y, m, d)
 endfunction
 
 function! s:Init()
-	if !exists('g:reformatdate_formats')
-		let g:reformatdate_formats = ['%Y/%m/%d', '%d-%m-%Y']
-	endif
-	if !exists('s:date_names')
-		let s:date_names = []
+	let g:reformatdate_formats = get(g:, 'g:reformatdate_formats',['%Y/%m/%d', '%d-%m-%Y'])
+	if !exists('s:day_of_week')
+		let s:day_of_week = []
 		for l:i in range(0, 6)
-			call add(s:date_names, strftime('%a', l:i * 86400))
+			call add(s:day_of_week, strftime('%a', l:i * 86400))
 		endfor
 	endif
 endfunction
@@ -72,6 +70,7 @@ function! reformatdate#reformat(...)
 		for l:i in ['Y', 'm', 'd']
 			let l:ymd[l:i] = str2nr(strftime('%'.l:i))
 		endfor
+		" 抽出
 		let l:index = 0
 		let l:offset = -1
 		while 1
@@ -93,10 +92,10 @@ function! reformatdate#reformat(...)
 	execute 'normal! "_'.s:Mlen(l:ymd_match[0]).'s'.strftime(l:fmt, l:dt)."\<ESC>"
 	" 近くに曜日があったらそれも更新する
 	for l:i in range(0, 6)
-		let l:a_pos = match(getline('.'), s:date_names[i], col('.')) + 1
+		let l:a_pos = match(getline('.'), s:day_of_week[i], col('.')) + 1
 		if 0 < l:a_pos && l:a_pos < l:start + len(l:ymd_match[0]) + 3
 			call cursor(0, l:a_pos)
-			execute 'normal! "_'.s:Mlen(s:date_names[i]).'s'.strftime('%a', l:dt)."\<ESC>"
+			execute 'normal! "_'.s:Mlen(s:day_of_week[i]).'s'.strftime('%a', l:dt)."\<ESC>"
 			break
 		endif
 	endfor
