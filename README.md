@@ -1,14 +1,15 @@
 # vim-reformatdate
 カーソル位置の「%Y/%m/%d」の文字列を再フォーマットします。
+日付の後に曜日があったらそれも修正します。
 自分用に作っただけなので適当です。
 
 ## 例
 
- "2015/05/32"<br>
+ "2015/05/32(日)"<br>
  ↓<br>
 :call reformatedate#reformat()<br>
  ↓<br>
- "2015/06/01"
+ "2015/06/01(月)"
 
 ## インストール例
 ~/.vim/autoloadにreformatdate.vimを置き、
