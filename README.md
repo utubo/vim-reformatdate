@@ -17,6 +17,8 @@ You can reformat yyyy/mm/dd on cursor.
 
 ## Install
 ```vim
+call dein('utubo/vim-reformatdate')
+
 " Reformat
 nnoremap <silent> <F5> :call reformatdate#reformat()<CR>
 
