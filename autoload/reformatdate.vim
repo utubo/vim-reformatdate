@@ -35,7 +35,7 @@ function! s:YmdToSec(y, m, d)
 endfunction
 
 function! s:Init()
-	let g:reformatdate_formats = get(g:, 'g:reformatdate_formats',['%Y/%m/%d', '%d-%m-%Y'])
+	let g:reformatdate_formats = get(g:, 'reformatdate_formats',['%Y/%m/%d', '%d-%m-%Y'])
 	if !exists('s:day_of_week')
 		let s:day_of_week = []
 		for l:i in range(0, 6)
