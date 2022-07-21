@@ -30,7 +30,7 @@ nnoremap <silent> <C-a> <C-a>:call reformatdate#reformat()<CR>
 nnoremap <silent> <C-x> <C-x>:call reformatdate#reformat()<CR>
 ```
 - Note
-  - If sepalator is `|`, then `<C-a>` will decrement days.
+  - If sepalator is `-`, then `<C-a>` will decrement days.
 
 
 ## Options
