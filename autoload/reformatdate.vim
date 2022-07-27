@@ -111,6 +111,10 @@ function! reformatdate#reformat(date = '.', inc = 0) abort
 
   let l:ymd_match = matchlist(getline('.'), l:fmt.pat, l:start - 1)
 
+  if l:ymd_match[0] =~# '^[0-9-]*$'
+    return
+  endif
+
   if a:date !=# '.'
     " from argument
     let l:date = a:date
@@ -177,12 +181,12 @@ function! reformatdate#reformat(date = '.', inc = 0) abort
 
   " support auto day name
   if l:fmt.fmt !~# '%a\|%A'
-    for l:names in [s:names.A, s:names.a]
-      for l:name in l:names
+    for l:key in ['A', 'a']
+      for l:name in s:names[l:key]
         let l:a_pos = match(getline('.'), l:name, col('.')) + 1
         if 0 < l:a_pos && l:a_pos < l:start + len(l:ymd_match[0]) + s:dayname_search_range
           call cursor(0, l:a_pos)
-          execute 'normal! "_'.s:Mlen(l:name).'s'.strftime('%a', l:date)."\<ESC>"
+          execute 'normal! "_'.s:Mlen(l:name).'s'.strftime('%' . l:key, l:date)."\<ESC>"
           break
         endif
       endfor
