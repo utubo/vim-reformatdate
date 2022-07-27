@@ -46,14 +46,12 @@ let g:reformatdate_formats = [
   \'%B',
   \'%b',
   \]
-]
 
 " You can add formats
 " Example
 let g:reformatdate_user_formats = [
   \'%Y',
   \]
-]
 ```
 - Note
   - You can use `%Y`, `%m`, `%d`, `%a`, `%A`, `%b`, `%B`
@@ -67,7 +65,7 @@ let g:reformatdate_user_formats = {
   \'b': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   \'A': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
   \'B': ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']}
-}
+  \}
 ```
 
 ### Init
