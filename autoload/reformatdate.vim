@@ -45,8 +45,8 @@ function! s:InitNames() abort
     call add(s:names.a, strftime('%a', l:i * 86400))
     call add(s:names.A, strftime('%A', l:i * 86400))
   endfor
-  for l:i in range(1, 12)
-    let l:m = strptime('%m/%d/%Y', string(l:i) . '/01/2000')
+  for l:i in range(0, 11)
+    let l:m = l:i * 86400 * 31
     call add(s:names.b, strftime('%b', l:m))
     call add(s:names.B, strftime('%B', l:m))
   endfor
@@ -105,6 +105,7 @@ function! reformatdate#reformat(date = '.', inc = 0) abort
 
   " inc/dec the number
   if a:inc !=# 0 && expand('<cword>') =~# '^[0-9-]'
+    normal! eb
     call s:IncDec(a:inc)
   endif
 
