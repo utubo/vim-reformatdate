@@ -59,8 +59,10 @@ let g:reformatdate_user_formats = [
 ### Day names and Months names
 ```vim
 " Default depends on locale
+" Sorry, you can't change names.
 " Example
-let g:reformatdate_user_formats = {
+echo g:reformatdate_user_formats
+{
   \'a': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
   \'b': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   \'A': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
