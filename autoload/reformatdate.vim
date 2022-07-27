@@ -7,6 +7,11 @@ let s:default_formats = [
       \'%B',
       \'%b',
       \]
+let s:dayname_search_range = 3
+let s:fmt_cache = ''
+let s:fmt = []
+let s:names = {}
+
 function! s:Mlen(str) abort
   return len(substitute(a:str, '.', 'x', 'g'))
 endfunction
@@ -17,10 +22,6 @@ function! s:YmdToSec(y, m, d) abort
   return (365 * l:y + l:y / 4 - l:y / 100 + l:y / 400 + 306 * (l:m + 1) / 10 + a:d - 428 - 719163) * 86400 " 1970/01/01=719163
 endfunction
 
-let s:fmt_cache = ''
-let s:fmt = []
-let s:names = {}
-let s:dayname_search_range = 3
 function! reformatdate#init() abort
   " names
   if empty(s:names)
