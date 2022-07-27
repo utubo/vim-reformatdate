@@ -30,7 +30,8 @@ function! reformatdate#init() abort
   let g:reformatdate_names = s:names
   " formats
   let g:reformatdate_formats = get(g:, 'reformatdate_formats', s:default_formats)
-  let l:fmt_cache = join(g:reformatdate_formats, '\n')
+  let g:reformatdate_user_formats = get(g:, 'reformatdate_user_formats', [])
+  let l:fmt_cache = join(g:reformatdate_formats, '\n') . join(g:reformatdate_user_formats, '\n')
   if s:fmt_cache !=# l:fmt_cache
     call s:InitFormats(l:fmt_cache)
   endif
@@ -55,6 +56,8 @@ endfunction
 function! s:InitFormats(new_cache) abort
   let s:fmt_cache = a:new_cache
   let s:fmt = []
+  let s:joined = g:reformatdate_formats
+  call extend(s:joined, g:reformatdate_user_formats)
   let sorted = g:reformatdate_formats
         \->sort({a, b -> len(strftime(b)) - len(strftime(a))})
         \->uniq()

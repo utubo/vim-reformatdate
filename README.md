@@ -34,8 +34,8 @@ nnoremap <silent> <C-x> :<C-u>call reformatdate#dec(v:count)<CR>
 
 
 ## Options
+### Support formats
 ```vim
-" The support formats
 " Default is
 let g:reformatdate_formats = [
   \'%Y/%m/%d',
@@ -45,6 +45,13 @@ let g:reformatdate_formats = [
   \'%a',
   \'%B',
   \'%b',
+  \]
+]
+
+" You can add formats
+" Example
+let g:reformatdate_user_formats = [
+  \'%Y',
   \]
 ]
 ```
