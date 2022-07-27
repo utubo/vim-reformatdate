@@ -33,7 +33,7 @@ nnoremap <silent> <C-x> :<C-u>call reformatdate#dec(v:count)<CR>
   - If sepalator is `-`, then `<C-a>` will decrement days.
 
 
-## Options
+## Settings
 ### Support formats
 ```vim
 " Default is
@@ -57,4 +57,24 @@ let g:reformatdate_user_formats = [
 ```
 - Note
   - You can use `%Y`, `%m`, `%d`, `%a`, `%A`, `%b`, `%B`
+
+### Day names and Months names
+```vim
+" Default depends on locale
+" Example
+let g:reformatdate_user_formats = {
+  \'a': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+  \'b': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+  \'A': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+  \'B': ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']}
+}
+```
+
+### Init
+
+If you change the settings after execute reformat, you must call `init()`.
+
+```vim
+call reformatdate#init()
+```
 

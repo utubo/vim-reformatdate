@@ -8,9 +8,9 @@ let s:default_formats = [
       \'%b',
       \]
 let s:dayname_search_range = 3
-let s:fmt_cache = ''
 let s:fmt = []
 let s:names = {}
+let s:inited = 0
 
 function! s:Mlen(str) abort
   return len(substitute(a:str, '.', 'x', 'g'))
@@ -23,19 +23,9 @@ function! s:YmdToSec(y, m, d) abort
 endfunction
 
 function! reformatdate#init() abort
-  " names
-  if empty(s:names)
-    call s:InitNames()
-  endif
-  call extend(s:names, get(g:, 'reformatdate_names', {}))
-  let g:reformatdate_names = s:names
-  " formats
-  let g:reformatdate_formats = get(g:, 'reformatdate_formats', s:default_formats)
-  let g:reformatdate_user_formats = get(g:, 'reformatdate_user_formats', [])
-  let l:fmt_cache = join(g:reformatdate_formats, '\n') . join(g:reformatdate_user_formats, '\n')
-  if s:fmt_cache !=# l:fmt_cache
-    call s:InitFormats(l:fmt_cache)
-  endif
+  call s:InitNames()
+  call s:InitFormats()
+  let s:inited = 1
 endfunction
 
 function! s:InitNames() abort
@@ -52,10 +42,13 @@ function! s:InitNames() abort
     call add(s:names.b, strftime('%b', l:m))
     call add(s:names.B, strftime('%B', l:m))
   endfor
+  call extend(s:names, get(g:, 'reformatdate_names', {}))
+  let g:reformatdate_names = s:names
 endfunction
 
-function! s:InitFormats(new_cache) abort
-  let s:fmt_cache = a:new_cache
+function! s:InitFormats() abort
+  let g:reformatdate_formats = get(g:, 'reformatdate_formats', s:default_formats)
+  let g:reformatdate_user_formats = get(g:, 'reformatdate_user_formats', [])
   let s:fmt = []
   let s:joined = g:reformatdate_formats
   call extend(s:joined, g:reformatdate_user_formats)
@@ -100,7 +93,10 @@ function s:FindFmt() abort
 endfunction
 
 function! reformatdate#reformat(date = '.', inc = 0) abort
-  call reformatdate#init()
+  if ! s:inited
+    call reformatdate#init()
+  endif
+
   let [l:fmt, l:start] = s:FindFmt()
   if l:start ==# -1
     call s:IncDec(a:inc)
