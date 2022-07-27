@@ -26,8 +26,8 @@ nnoremap <silent> <F5> :call reformatdate#reformat()<CR>
 nnoremap <silent> <F6> :call reformatdate#reformat(localtime())<CR>
 
 " Increment/Decrement days
-nnoremap <silent> <C-a> <C-a>:call reformatdate#reformat()<CR>
-nnoremap <silent> <C-x> <C-x>:call reformatdate#reformat()<CR>
+nnoremap <silent> <C-a> :<C-u>call reformatdate#inc(v:count)<CR>
+nnoremap <silent> <C-x> :<C-u>call reformatdate#dec(v:count)<CR>
 ```
 - Note
   - If sepalator is `-`, then `<C-a>` will decrement days.
@@ -36,9 +36,18 @@ nnoremap <silent> <C-x> <C-x>:call reformatdate#reformat()<CR>
 ## Options
 ```vim
 " The support formats
-let g:reformatdate_formats = ['%Y/%m/%d', '%d-%m-%Y']
+" Default is
+let g:reformatdate_formats = [
+  \'%Y/%m/%d',
+  \'%d-%m-%Y',
+  \'%B %dth, %Y',
+  \'%A',
+  \'%a',
+  \'%B',
+  \'%b',
+  \]
+]
 ```
 - Note
-  - You can use `%Y`, `%m` and `%d` only.
-
+  - You can use `%Y`, `%m`, `%d`, `%a`, `%A`, `%b`, `%B`
 
