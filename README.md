@@ -69,6 +69,8 @@ echo g:reformatdate_user_names
   \'B': ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
   \}]
 ```
+- Note
+  - `May` may be `%B`
 
 ### Init
 
