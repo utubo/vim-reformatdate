@@ -76,6 +76,8 @@ let g:reformatdate_extend_names = [{
   \'a': ['S', 'M', 'T', 'W', 'H', 'F', 'A'],
   \}]
 ```
+- Note
+  - `May` may be `%B`
 
 ### Init
 
