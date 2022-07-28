@@ -49,7 +49,7 @@ let g:reformatdate_formats = [
 
 " You can add formats
 " Example
-let g:reformatdate_user_formats = [
+let g:reformatdate_extend_formats = [
   \'%Y',
   \]
 ```
@@ -59,14 +59,21 @@ let g:reformatdate_user_formats = [
 ### Day names and Months names
 ```vim
 " Default depends on locale
-" Sorry, you can't change names.
 " Example
-echo g:reformatdate_user_names
+echo g:reformatdate_names
 [{
   \'a': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
   \'b': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   \'A': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
   \'B': ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+  \}]
+" You can add formats
+" Example
+let g:reformatdate_extend_names = [{
+  \'a': ['日', '月', '火', '水', '木', '金', '土'],
+  \'A': ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'],
+  \}, {
+  \'a': ['S', 'M', 'T', 'W', 'H', 'F', 'A'],
   \}]
 ```
 

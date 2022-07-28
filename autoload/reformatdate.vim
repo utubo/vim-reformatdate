@@ -24,21 +24,24 @@ function! s:YmdToSec(y, m, d) abort
 endfunction
 
 function! s:Strftime(fmt, date, names = {}) abort
-  let l:fmt = a:fmt
+  let l:str = a:fmt
   for [l:k, l:v] in items(a:names)
     if l:k ==# 'A' || l:k ==# 'a'
       let l:i = str2nr(strftime('%w', a:date))
     else
       let l:i = str2nr(strftime('%m', a:date)) - 1
     endif
-    let l:fmt = l:fmt->substitute('%' . l:k, a:names[l:k][l:i], 'g')
+    let l:str = l:str->substitute('%' . l:k, a:names[l:k][l:i], 'g')
   endfor
-  return strftime(l:fmt, a:date)
+  for l:i in ['%Y', '%m', '%d', '%A', '%B', '%a', '%b']
+    let l:str = l:str->substitute(l:i, strftime(l:i, a:date), 'g')
+  endfor
+  return l:str
 endfunction
 
 function! s:FindNames(a, name) abort
   for l:names in s:names_list
-    if index(l:names[a:a], a:name) !=# -1
+    if has_key(l:names, a:a) && index(l:names[a:a], a:name) !=# -1
       return l:names[a:a]
     endif
   endfor
@@ -52,22 +55,30 @@ function! reformatdate#init() abort
 endfunction
 
 function! s:InitNames() abort
-  let s:names_list = [{
-        \'a': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
-        \'b': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        \'A': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-        \'B': ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-        \}]
-  " System locale
-  if strftime('%a') !=# 'Thu'
-    call s:AddDefaultNames()
+  if exists('g:reformatdate_names')
+    let s:names_list = g:reformatdate_names
+  else
+    let s:names_list = [{
+          \'a': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+          \'b': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+          \'A': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+          \'B': ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+          \}]
+    " System locale
+    if strftime('%a') !=# 'Thu'
+      call s:AddDefaultNames()
+    endif
+    let g:reformatdate_names = s:names_list
   endif
+  call extend(s:names_list, get(g:, 'reformatdate_extend_names', []))
   " Patterns
   let s:names_pat = {}
   for l:key in s:NAME_KEYS
     let l:all = []
     for l:n in s:names_list
-      call extend(l:all, l:n[l:key])
+      if has_key(l:n, l:key)
+        call extend(l:all, l:n[l:key])
+      endif
     endfor
     let s:names_pat[l:key]  = '\\(' . join(l:all, '\\|') . '\\)'
   endfor
@@ -89,10 +100,10 @@ endfunction
 
 function! s:InitFormats() abort
   let g:reformatdate_formats = get(g:, 'reformatdate_formats', s:default_formats)
-  let g:reformatdate_user_formats = get(g:, 'reformatdate_user_formats', [])
+  let g:reformatdate_extend_formats = get(g:, 'reformatdate_extend_formats', [])
   let s:fmt = []
   let s:joined = g:reformatdate_formats
-  call extend(s:joined, g:reformatdate_user_formats)
+  call extend(s:joined, g:reformatdate_extend_formats)
   let sorted = g:reformatdate_formats
         \->sort({a, b -> s:Mlen(strftime(b)) - s:Mlen(strftime(a))})
         \->uniq()
@@ -189,7 +200,7 @@ function! reformatdate#reformat(date = '.', inc = 0) abort
   for l:a in ['A', 'a']
     if ymd[l:a] !=# '' && l:fmt.fmt !~# '%[YmdbB]'
       let l:names[l:a] = s:FindNames(l:a, ymd[l:a])
-      let l:ymd.d += index(l:names[l:a], l:ymd[l:a]) - index(l:names[l:a], strftime('%' .. l:a))
+      let l:ymd.d += index(l:names[l:a], l:ymd[l:a]) - str2nr(strftime('%w'))
     endif
   endfor
 
@@ -225,13 +236,13 @@ function! reformatdate#reformat(date = '.', inc = 0) abort
   endif
   let l:cur = getpos('.') " ('.')/ < Hello !
   call cursor(0, l:start)
-  execute 'normal! "_'.s:Mlen(l:ymd_match[0]).'s'.l:str."\<ESC>"
+  execute 'normal! "_' . s:Mlen(l:ymd_match[0]) . 's' . l:str . "\<ESC>"
 
   " support auto day name
   if l:fmt.fmt !~# '%a\|%A'
     for l:key in ['A', 'a']
       for l:names in s:names_list
-        if ! exists('l:names.' . l:key)
+        if ! has_key(l:names, l:key)
           continue
         endif
         for l:name in l:names[l:key]
