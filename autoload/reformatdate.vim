@@ -36,6 +36,13 @@ function! s:Strftime(fmt, date, names = {}) abort
   for l:i in ['%Y', '%m', '%d', '%A', '%B', '%a', '%b']
     let l:str = l:str->substitute(l:i, strftime(l:i, a:date), 'g')
   endfor
+  if stridx(a:fmt, '%dth')
+    let l:str = l:str
+          \->substitute('\<0\(\d\)th', '\1th', 'g')
+          \->substitute('\<1th', '1st', 'g')
+          \->substitute('\<2th', '2nd', 'g')
+          \->substitute('\<3th', '3rd', 'g')
+  endif
   return l:str
 endfunction
 
@@ -227,13 +234,6 @@ function! reformatdate#reformat(date = '.', inc = 0) abort
 
   " reformat !
   let l:str = s:Strftime(l:fmt.fmt, l:date, l:names)
-  if stridx(l:fmt.fmt, '%dth')
-    let l:str = l:str
-          \->substitute('\<0\(\d\)th', '\1th', 'g')
-          \->substitute('\<1th', '1st', 'g')
-          \->substitute('\<2th', '2nd', 'g')
-          \->substitute('\<3th', '3rd', 'g')
-  endif
   let l:cur = getpos('.') " ('.')/ < Hello !
   call cursor(0, l:start)
   execute 'normal! "_' . s:Mlen(l:ymd_match[0]) . 's' . l:str . "\<ESC>"
