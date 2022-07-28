@@ -60,14 +60,13 @@ let g:reformatdate_extend_formats = [
 ```vim
 " Default depends on locale
 " Example
-echo g:reformatdate_names
-[{
+let g:reformatdate_names = [{
   \'a': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
   \'b': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   \'A': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
   \'B': ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
   \}]
-" You can add formats
+" You can add names
 " Example
 let g:reformatdate_extend_names = [{
   \'a': ['日', '月', '火', '水', '木', '金', '土'],
