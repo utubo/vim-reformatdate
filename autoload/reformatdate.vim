@@ -9,8 +9,9 @@ let s:default_formats = [
       \]
 let s:dayname_search_range = 3
 let s:fmt = []
-let s:names = {}
+let s:names_list = []
 let s:inited = 0
+let s:NAME_KEYS = ['A', 'a', 'B', 'b']
 
 function! s:Mlen(str) abort
   return len(substitute(a:str, '.', 'x', 'g'))
@@ -22,6 +23,28 @@ function! s:YmdToSec(y, m, d) abort
   return (365 * l:y + l:y / 4 - l:y / 100 + l:y / 400 + 306 * (l:m + 1) / 10 + a:d - 428 - 719163) * 86400 " 1970/01/01=719163
 endfunction
 
+function! s:Strftime(fmt, date, names = {}) abort
+  let l:fmt = a:fmt
+  for [l:k, l:v] in items(a:names)
+    if l:k ==# 'A' || l:k ==# 'a'
+      let l:i = str2nr(strftime('%w', a:date))
+    else
+      let l:i = str2nr(strftime('%m', a:date)) - 1
+    endif
+    let l:fmt = l:fmt->substitute('%' . l:k, a:names[l:k][l:i], 'g')
+  endfor
+  return strftime(l:fmt, a:date)
+endfunction
+
+function! s:FindNames(a, name) abort
+  for l:names in s:names_list
+    if index(l:names[a:a], a:name) !=# -1
+      return l:names[a:a]
+    endif
+  endfor
+  return []
+endfunction
+
 function! reformatdate#init() abort
   call s:InitNames()
   call s:InitFormats()
@@ -29,21 +52,39 @@ function! reformatdate#init() abort
 endfunction
 
 function! s:InitNames() abort
-  let s:names.a = []
-  let s:names.A = []
-  let s:names.b = []
-  let s:names.B = []
+  let s:names_list = [{
+        \'a': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
+        \'b': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+        \'A': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        \'B': ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        \}]
+  " System locale
+  if strftime('%a') !=# 'Thu'
+    call s:AddDefaultNames()
+  endif
+  " Patterns
+  let s:names_pat = {}
+  for l:key in s:NAME_KEYS
+    let l:all = []
+    for l:n in s:names_list
+      call extend(l:all, l:n[l:key])
+    endfor
+    let s:names_pat[l:key]  = '\\(' . join(l:all, '\\|') . '\\)'
+  endfor
+endfunction
+
+function! s:AddDefaultNames() abort
+  let l:names = { 'a': [], 'A': [], 'b': [], 'B': [] }
   for l:i in range(3, 9) " Sun to Sat
-    call add(s:names.a, strftime('%a', l:i * 86400))
-    call add(s:names.A, strftime('%A', l:i * 86400))
+    call add(l:names.a, strftime('%a', l:i * 86400))
+    call add(l:names.A, strftime('%A', l:i * 86400))
   endfor
   for l:i in range(0, 11)
     let l:m = l:i * 86400 * 31
-    call add(s:names.b, strftime('%b', l:m))
-    call add(s:names.B, strftime('%B', l:m))
+    call add(l:names.b, strftime('%b', l:m))
+    call add(l:names.B, strftime('%B', l:m))
   endfor
-  call extend(s:names, get(g:, 'reformatdate_names', {}))
-  let g:reformatdate_names = s:names
+  call add(s:names_list, l:names)
 endfunction
 
 function! s:InitFormats() abort
@@ -53,15 +94,15 @@ function! s:InitFormats() abort
   let s:joined = g:reformatdate_formats
   call extend(s:joined, g:reformatdate_user_formats)
   let sorted = g:reformatdate_formats
-        \->sort({a, b -> len(strftime(b)) - len(strftime(a))})
+        \->sort({a, b -> s:Mlen(strftime(b)) - s:Mlen(strftime(a))})
         \->uniq()
   for l:fmt in sorted
     let l:pat = l:fmt
           \->substitute('%Y', '\\(\\d\\{4}\\)', '')
           \->substitute('%dth', '\\(\\d\\{1,2}\\)\\%(th\\|st\\|nd\\|rd\\)', 'g')
           \->substitute('%[md]', '\\(\\d\\{1,2}\\)', 'g')
-    for l:i in ['a', 'A', 'b', 'B']
-      let l:pat = l:pat->substitute('%' . l:i, '\\(' . join(s:names[l:i], '\\|') . '\\)', 'g')
+    for l:i in s:NAME_KEYS
+      let l:pat = l:pat->substitute('%' . l:i, s:names_pat[l:i], 'g')
     endfor
     call add(s:fmt, { 'fmt': l:fmt, 'pat': l:pat, 'len': len(strftime(l:fmt)) })
   endfor
@@ -105,69 +146,76 @@ function! reformatdate#reformat(date = '.', inc = 0) abort
 
   " inc/dec the number
   if a:inc !=# 0 && expand('<cword>') =~# '^[0-9-]'
-    normal! eb
+    if expand('<cword>') =~# '[^0-9]'
+      normal! eb
+    endif
     call s:IncDec(a:inc)
   endif
 
   let l:ymd_match = matchlist(getline('.'), l:fmt.pat, l:start - 1)
 
-  if l:ymd_match[0] =~# '^[0-9-]*$'
+  if len(l:ymd_match) ==# 0 || l:ymd_match[0] =~# '^[0-9-]*$'
     return
   endif
 
-  if a:date !=# '.'
-    " from argument
-    let l:date = a:date
-  else
-    " from cursorpos
-    let l:ymd = {
-          \'Y': strftime('%Y'), 'm': strftime('%m'), 'd': strftime('%d'),
-          \'a': '', 'A': '', 'b': '', 'B': '', 'dth': '',
-          \}
-    let l:index = 0
-    let l:offset = -1
-    while 1
-      let l:offset = match(l:fmt.fmt, '%\zs[YmdaAbB]', l:offset + 1)
-      if 0 < l:offset
-        let l:index += 1
-        let l:ymd[l:fmt.fmt[l:offset]] = l:ymd_match[l:index]
-      else
+  " from cursorpos
+  let l:ymd = {
+        \'Y': strftime('%Y'), 'm': strftime('%m'), 'd': strftime('%d'),
+        \'a': '', 'A': '', 'b': '', 'B': '', 'dth': '',
+        \}
+  let l:index = 0
+  let l:offset = -1
+  while 1
+    let l:offset = match(l:fmt.fmt, '%\zs[YmdaAbB]', l:offset + 1)
+    if 0 < l:offset
+      let l:index += 1
+      let l:ymd[l:fmt.fmt[l:offset]] = l:ymd_match[l:index]
+    else
+      break
+    endif
+  endwhile
+  let ymd.Y = str2nr(ymd.Y)
+  let ymd.m = str2nr(ymd.m)
+  let ymd.d = str2nr(ymd.d)
+
+  " names
+  let l:names = {}
+  for l:b in ['B', 'b']
+    if ymd[l:b] !=# ''
+      let l:names[l:b] = s:FindNames(l:b, ymd[l:b])
+      let l:ymd.m = index(l:names[l:b], l:ymd[l:b]) + 1
+    endif
+  endfor
+  for l:a in ['A', 'a']
+    if ymd[l:a] !=# '' && l:fmt.fmt !~# '%[YmdbB]'
+      let l:names[l:a] = s:FindNames(l:a, ymd[l:a])
+      let l:ymd.d += index(l:names[l:a], l:ymd[l:a]) - index(l:names[l:a], strftime('%' .. l:a))
+    endif
+  endfor
+
+  " support inc/dec a name
+  if a:inc !=# 0
+    let l:cw = expand('<cword>')
+    for l:k in keys(l:names)
+      if index(l:names[l:k], l:cw) !=# -1
+        if l:k ==# 'b' || l:k ==# 'B'
+          let l:ymd.m += a:inc
+        else
+          let l:ymd.d += a:inc
+        endif
         break
       endif
-    endwhile
-    let ymd.Y = str2nr(ymd.Y)
-    let ymd.m = str2nr(ymd.m)
-    let ymd.d = str2nr(ymd.d)
+    endfor
+  endif
 
-    " names
-    if ymd.b !=# ''
-      let l:ymd.m = index(s:names.b, l:ymd.b) + 1
-    endif
-    if ymd.B !=# ''
-      let l:ymd.m = index(s:names.B, l:ymd.B) + 1
-    endif
-    if ymd.a !=# '' && l:fmt.fmt !~# '%[YmdbB]'
-      let l:ymd.d += index(s:names.a, l:ymd.a) - index(s:names.a, strftime('%a'))
-    endif
-    if ymd.A !=# '' && l:fmt.fmt !~# '%[YmdbB]'
-      let l:ymd.d += index(s:names.A, l:ymd.A) - index(s:names.A, strftime('%A'))
-    endif
-
-    " support inc/dec a name
-    if a:inc !=# 0
-      let l:cw = expand('<cword>')
-      if index(s:names.b, l:cw) !=# -1 || index(s:names.B, l:cw) !=# -1
-        let l:ymd.m += a:inc
-      elseif index(s:names.a, l:cw) !=# -1 || index(s:names.A, l:cw) !=# -1
-        let l:ymd.d += a:inc
-      endif
-    endif
-
+  if a:date ==# '.'
     let l:date = s:YmdToSec(l:ymd['Y'], l:ymd['m'], l:ymd['d'])
+  else
+    let l:date = a:date
   endif
 
   " reformat !
-  let l:str = strftime(l:fmt.fmt, l:date)
+  let l:str = s:Strftime(l:fmt.fmt, l:date, l:names)
   if stridx(l:fmt.fmt, '%dth')
     let l:str = l:str
           \->substitute('\<0\(\d\)th', '\1th', 'g')
@@ -182,13 +230,19 @@ function! reformatdate#reformat(date = '.', inc = 0) abort
   " support auto day name
   if l:fmt.fmt !~# '%a\|%A'
     for l:key in ['A', 'a']
-      for l:name in s:names[l:key]
-        let l:a_pos = match(getline('.'), l:name, col('.')) + 1
-        if 0 < l:a_pos && l:a_pos < l:start + len(l:ymd_match[0]) + s:dayname_search_range
-          call cursor(0, l:a_pos)
-          execute 'normal! "_'.s:Mlen(l:name).'s'.strftime('%' . l:key, l:date)."\<ESC>"
-          break
+      for l:names in s:names_list
+        if ! exists('l:names.' . l:key)
+          continue
         endif
+        for l:name in l:names[l:key]
+          let l:a_pos = match(getline('.'), l:name, col('.')) + 1
+          if 0 < l:a_pos && l:a_pos < l:start + len(l:ymd_match[0]) + s:dayname_search_range
+            let l:s = s:Strftime('%' . l:key, l:date, l:names)
+            call cursor(0, l:a_pos)
+            execute 'normal! "_' . s:Mlen(l:name) . 's' . l:s . "\<ESC>"
+            break
+          endif
+        endfor
       endfor
     endfor
   endif
