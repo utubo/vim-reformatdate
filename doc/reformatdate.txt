@@ -1,0 +1,130 @@
+*reformatdate.txt*	a summary
+
+Author  : utubo
+License : CC0 1.0 Universal  {{{
+    CREATIVE COMMONS CORPORATION IS NOT A LAW FIRM AND DOES NOT PROVIDE
+    LEGAL SERVICES. DISTRIBUTION OF THIS DOCUMENT DOES NOT CREATE AN
+    ATTORNEY-CLIENT RELATIONSHIP. CREATIVE COMMONS PROVIDES THIS
+    INFORMATION ON AN "AS-IS" BASIS. CREATIVE COMMONS MAKES NO WARRANTIES
+    REGARDING THE USE OF THIS DOCUMENT OR THE INFORMATION OR WORKS
+    PROVIDED HEREUNDER, AND DISCLAIMS LIABILITY FOR DAMAGES RESULTING FROM
+    THE USE OF THIS DOCUMENT OR THE INFORMATION OR WORKS PROVIDED
+    HEREUNDER.
+}}}
+
+
+==============================================================================
+CONTENTS					*reformatdate-contents*
+
+INTRODUCTION			|reformatdate-introduction|
+USAGE				|reformatdate-usage|
+INTERFACE			|reformatdate-interface|
+  VARIABLES			  |reformatdate-variables|
+  FUNCTIONS			  |reformatdate-functions|
+CHANGELOG			|reformatdate-changelog|
+
+
+==============================================================================
+INTRODUCTION					*reformatdate-introduction*
+
+*reformatdate* is a Vim plugin to reformat 'yyyy/MM/dd' on the cursor.
+
+Latest version:
+https://github.com/user/reformatdate.vim
+
+
+==============================================================================
+USAGE						*reformatdate-usage*
+
+Install~
+
+.vimrc example
+>
+	call dein('utubo/vim-reformatdate')
+
+	" Reformat
+	nnoremap <silent> <F5> :call reformatdate#reformat()<CR>
+
+	" Reset to today
+	nnoremap <silent> <F6> :call reformatdate#reformat(localtime())<CR>
+
+	" Increment/Decrement days
+	nnoremap <silent> <C-a> :<C-u>call reformatdate#inc(v:count)<CR>
+	nnoremap <silent> <C-x> :<C-u>call reformatdate#dec(v:count)<CR>
+<
+
+- Note
+  - If sepalator is `-`, then `<C-a>` will decrement days.
+
+==============================================================================
+INTERFACE					*reformatdate-interface*
+
+------------------------------------------------------------------------------
+VARIABLES					*reformatdate-variables*
+
+g:reformatdate_names				*g:reformatdate_names*
+	The support date formats.
+	default value:
+>
+		['%Y/%m/%d', '%d-%m-%Y', '%B %dth, %Y', '%A', '%a', '%B', '%b']
+<
+
+
+g:reformatdate_formats				*g:reformatdate_formats*
+	You can add formats.
+	example:
+>
+		let g:reformatdate_extend_formats = [
+		  \'%Y,%m,%d',
+		  \'%d,%m',
+		  \]
+<
+	- Note
+	  - You can use `%Y`, `%m`, `%d`, `%a`, `%A`, `%b`, `%B`
+
+
+g:reformatdate_extend_formats			*g:reformatdate_extend_formats*
+	You can add days names and months names.
+	example:
+>
+		let g:reformatdate_extend_names = [
+		  \{
+		  \  'a': ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'],
+		  \  'A': ['SUNDAY', 'MONDAY', 'TUESDAY', 'WEDNESDAY',
+		  \        'THURSDAY', 'FRIDAY', 'SATURDAY'],
+		  \}, {
+		  \  'a': ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+		  \}]
+<
+
+------------------------------------------------------------------------------
+FUNCTIONS					*reformatdate-functions*
+
+reformatdate#dec({count})			*reformatdate#dec()*
+	Decrement the date at the cursor.
+	default behavior <C-x>, if date not found.
+
+
+reformatdate#inc({count})			*reformatdate#inc()*
+	Increment the date at the cursor.
+	default behavior <C-a>, if date not found.
+
+
+reformatdate#init()				*reformatdate#init()*
+	 You must call this, if you change the settings after execute reformat.
+
+
+						*reformatdate#reformat()*
+reformatdate#reformat([{date}])
+	Reformat the date at the cursor.
+	{date} is a Date. You can reformat to {date} instead of the date at the
+	cursor.
+
+
+==============================================================================
+CHANGELOG					*reformatdate-changelog*
+
+none.
+
+==============================================================================
+vim:tw=78:ts=8:ft=help:norl:noet:fen:
