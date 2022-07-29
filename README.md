@@ -1,6 +1,8 @@
 # vim-reformatdate
 You can reformat yyyy/mm/dd on cursor.
 
+![reformatdate](https://user-images.githubusercontent.com/6848636/181770588-9b9ce3e5-6d83-44d1-aebb-ded3008fe9d9.gif)
+
 ## Example
 - Before
   ```
