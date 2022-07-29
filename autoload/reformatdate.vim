@@ -109,12 +109,12 @@ function! s:InitFormats() abort
   let g:reformatdate_formats = get(g:, 'reformatdate_formats', s:default_formats)
   let g:reformatdate_extend_formats = get(g:, 'reformatdate_extend_formats', [])
   let s:fmt = []
-  let s:joined = g:reformatdate_formats
-  call extend(s:joined, g:reformatdate_extend_formats)
-  let sorted = g:reformatdate_formats
+  let l:joined = g:reformatdate_formats
+  call extend(l:joined, g:reformatdate_extend_formats)
+  let l:sorted = g:reformatdate_formats
         \->sort({a, b -> s:Mlen(strftime(b)) - s:Mlen(strftime(a))})
         \->uniq()
-  for l:fmt in sorted
+  for l:fmt in l:sorted
     let l:pat = l:fmt
           \->substitute('%Y', '\\(\\d\\{4}\\)', '')
           \->substitute('%dth', '\\(\\d\\{1,2}\\)\\%(th\\|st\\|nd\\|rd\\)', 'g')
