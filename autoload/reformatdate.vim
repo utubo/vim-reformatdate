@@ -130,11 +130,12 @@ endfunction
 function s:FindFmt() abort
   let l:cur = getpos('.')
   for l:fmt in s:fmt
-    if search('\V' . l:fmt.pat . '\C', 'bc', cur[1]) ==# 0
+    let l:p = '\V' . l:fmt.pat . '\C'
+    if search(l:p, 'bc', cur[1]) ==# 0
       continue
     endif
     let l:start = col('.')
-    call search(l:fmt.pat, 'ce', cur[1])
+    call search(l:p, 'ce', cur[1])
     if l:cur[2] <= col('.')
       call setpos('.', l:cur)
       return [l:fmt, l:start]
