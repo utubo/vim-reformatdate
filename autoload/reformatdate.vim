@@ -48,7 +48,7 @@ function! s:FindNames(a, name) abort
   return []
 endfunction
 
-function! s:IncDec(inc = 0)
+function! s:IncDec(inc)
   if a:inc > 0
     execute "normal! " . string(a:inc) . "\<C-a>"
   elseif a:inc < 0
@@ -96,7 +96,7 @@ endfunction
 
 function! s:AddDefaultNames() abort
   let l:names = { 'a': [], 'A': [], 'b': [], 'B': [] }
-  for l:i in range(3, 9) " Sun to Sat
+  for l:i in range(3, 9) " from Sun to Sat
     call add(l:names.a, strftime('%a', l:i * 86400))
     call add(l:names.A, strftime('%A', l:i * 86400))
   endfor
