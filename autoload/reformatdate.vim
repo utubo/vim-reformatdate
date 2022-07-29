@@ -1,17 +1,14 @@
-let s:default_formats = [
+let s:DEFAULT_FORMATS = [
       \'%Y/%m/%d', '%d-%m-%Y', '%B %dth, %Y',
       \'%A', '%a', '%B', '%b',
       \]
+let s:NAME_KEYS = ['A', 'a', 'B', 'b']
 let s:dayname_search_range = 3
 let s:fmt = []
 let s:names_list = []
 let s:inited = 0
-let s:NAME_KEYS = ['A', 'a', 'B', 'b']
 
-function! s:Mlen(str) abort
-  return len(substitute(a:str, '.', 'x', 'g'))
-endfunction
-
+" Utils
 function! s:YmdToSec(y, m, d) abort
   let l:y = a:m < 3 ? a:y - 1 : a:y
   let l:m = a:m < 3 ? 12 + a:m : a:m
@@ -50,6 +47,15 @@ function! s:FindNames(a, name) abort
   return []
 endfunction
 
+function! s:IncDec(inc = 0)
+  if a:inc > 0
+    execute "normal! " . string(a:inc) . "\<C-a>"
+  elseif a:inc < 0
+    execute "normal! " . string(-a:inc) . "\<C-x>"
+  endif
+endfunction
+
+" Initialize
 function! reformatdate#init() abort
   call s:InitNames()
   call s:InitFormats()
@@ -101,11 +107,11 @@ function! s:AddDefaultNames() abort
 endfunction
 
 function! s:InitFormats() abort
-  let g:reformatdate_formats = get(g:, 'reformatdate_formats', s:default_formats)
+  let g:reformatdate_formats = get(g:, 'reformatdate_formats', s:DEFAULT_FORMATS)
   let g:reformatdate_extend_formats = get(g:, 'reformatdate_extend_formats', [])
   let s:fmt = []
   let l:sorted = (g:reformatdate_formats + g:reformatdate_extend_formats)
-        \->sort({a, b -> s:Mlen(strftime(b)) - s:Mlen(strftime(a))})
+        \->sort({a, b -> strcharlen(strftime(b)) - strcharlen(strftime(a))})
         \->uniq()
   for l:fmt in l:sorted
     let l:pat = l:fmt
@@ -119,26 +125,22 @@ function! s:InitFormats() abort
   endfor
 endfunction
 
-function! s:IncDec(inc = 0)
-  if a:inc > 0
-    execute "normal! " . string(a:inc) . "\<C-a>"
-  elseif a:inc < 0
-    execute "normal! " . string(-a:inc) . "\<C-x>"
-  endif
-endfunction
-
+" Reformat
 function s:FindFmt() abort
-  let l:line = getline('.')
-  let l:col = col('.')
+  let l:cur = getpos('.')
   let l:start = 0
+  let l:end = 0
   for l:fmt in s:fmt
-    let l:start = match(l:line, l:fmt.pat, max([0, l:col - l:fmt.len])) + 1
-    if l:start !=# 0
+    if search(l:fmt.pat, 'bc', cur[1]) !=# 0
+      let l:start = col('.')
+      call search(l:fmt.pat, 'ce', cur[1])
+      let l:end = col('.')
       break
     endif
   endfor
-  if l:start ==# 0 || l:start + l:fmt.len < l:col || l:col < l:start
-    return [{}, -1]
+  call setpos('.', l:cur)
+  if l:start ==# 0 || l:end < l:cur[2]
+    return [{}, 0]
   else
     return [l:fmt, l:start]
   endif
@@ -150,7 +152,7 @@ function! reformatdate#reformat(date = '.', inc = 0) abort
   endif
 
   let [l:fmt, l:start] = s:FindFmt()
-  if l:start ==# -1
+  if l:start ==# 0
     call s:IncDec(a:inc)
     return
   endif
@@ -231,7 +233,7 @@ function! reformatdate#reformat(date = '.', inc = 0) abort
   let l:str = s:Strftime(l:fmt.fmt, l:date, l:names)
   let l:cur = getpos('.') " ('.')/ < Hello !
   call cursor(0, l:start)
-  execute 'normal! "_' . s:Mlen(l:ymd_match[0]) . 's' . l:str . "\<ESC>"
+  execute 'normal! "_' . strcharlen(l:ymd_match[0]) . 's' . l:str . "\<ESC>"
 
   " support auto day name
   if l:fmt.fmt !~# '%a\|%A'
@@ -245,7 +247,7 @@ function! reformatdate#reformat(date = '.', inc = 0) abort
           if 0 < l:a_pos && l:a_pos < l:start + len(l:ymd_match[0]) + s:dayname_search_range
             let l:s = s:Strftime('%' . l:key, l:date, l:names)
             call cursor(0, l:a_pos)
-            execute 'normal! "_' . s:Mlen(l:name) . 's' . l:s . "\<ESC>"
+            execute 'normal! "_' . strcharlen(l:name) . 's' . l:s . "\<ESC>"
             break
           endif
         endfor
