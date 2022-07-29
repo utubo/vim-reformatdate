@@ -25,16 +25,17 @@ function! s:Strftime(fmt, date, names = {}) abort
     endif
     let l:str = l:str->substitute('%' . l:k, a:names[l:k][l:i], 'g')
   endfor
-  for l:i in ['%Y', '%m', '%d', '%A', '%B', '%a', '%b']
-    let l:str = l:str->substitute(l:i, strftime(l:i, a:date), 'g')
-  endfor
   if stridx(a:fmt, '%dth')
-    let l:str = l:str
+    let l:dth = strftime('%dth', a:date)
           \->substitute('\<0\(\d\)th', '\1th', 'g')
           \->substitute('\<1th', '1st', 'g')
           \->substitute('\<2th', '2nd', 'g')
           \->substitute('\<3th', '3rd', 'g')
+    let l:str = l:str->substitute('%dth', l:dth, 'g')
   endif
+  for l:i in ['%Y', '%m', '%d', '%A', '%B', '%a', '%b']
+    let l:str = l:str->substitute(l:i, strftime(l:i, a:date), 'g')
+  endfor
   return l:str
 endfunction
 
