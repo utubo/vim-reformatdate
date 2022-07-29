@@ -113,7 +113,7 @@ function! s:InitFormats() abort
   let g:reformatdate_extend_formats = get(g:, 'reformatdate_extend_formats', [])
   let s:fmt = []
   let l:sorted = (g:reformatdate_formats + g:reformatdate_extend_formats)
-        \->sort({a, b -> strcharlen(strftime(b)) - strcharlen(strftime(a))})
+        \->sort({a, b -> s:FmtLen(b) - s:FmtLen(a)})
         \->uniq()
   for l:fmt in l:sorted
     let l:pat = l:fmt
@@ -125,6 +125,17 @@ function! s:InitFormats() abort
     endfor
     call add(s:fmt, { 'fmt': l:fmt, 'pat': l:pat })
   endfor
+endfunction
+
+function! s:FmtLen(fmt) abort
+  " approximate Length
+  return len(a:fmt
+        \->substitute('%Y', '0000', 'g')
+        \->substitute('%[md]', '00', 'g')
+        \->substitute('%[ab]', 'Sun', 'g')
+        \->substitute('%A', 'Wednesday', 'g')
+        \->substitute('%B', 'September', 'g')
+        \)
 endfunction
 
 " Reformat
