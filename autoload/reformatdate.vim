@@ -27,10 +27,10 @@ function! s:Strftime(fmt, date, names = {}) abort
   endfor
   if stridx(a:fmt, '%dth')
     let l:dth = strftime('%dth', a:date)
-          \->substitute('\<0\(\d\)th', '\1th', 'g')
-          \->substitute('\<1th', '1st', 'g')
-          \->substitute('\<2th', '2nd', 'g')
-          \->substitute('\<3th', '3rd', 'g')
+          \->substitute('^0', '', '')
+          \->substitute('^1th', '1st', '')
+          \->substitute('^2th', '2nd', '')
+          \->substitute('^3th', '3rd', '')
     let l:str = l:str->substitute('%dth', l:dth, 'g')
   endif
   for l:i in ['%Y', '%m', '%d', '%A', '%B', '%a', '%b']
