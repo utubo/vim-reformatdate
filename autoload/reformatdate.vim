@@ -65,7 +65,7 @@ endfunction
 
 function! s:InitNames() abort
   if exists('g:reformatdate_names')
-    let s:names_list = g:reformatdate_names
+    let s:names_list = copy(g:reformatdate_names)
   else
     let s:names_list = [{
           \'a': ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'],
