@@ -1,4 +1,4 @@
-*reformatdate.txt*	Reformat 'yyyy/MM/dd' on the cursor
+*reformatdate.txt*	Reformat 'yyyy/MM/dd' at the cursor
 
 Author  : utubo
 License : CC0 1.0 Universal  {{{
@@ -27,7 +27,7 @@ CHANGELOG			|reformatdate-changelog|
 ==============================================================================
 INTRODUCTION					*reformatdate-introduction*
 
-*reformatdate* is a Vim plugin for reformat 'yyyy/MM/dd' on the cursor.
+*reformatdate* is a Vim plugin for reformat 'yyyy/MM/dd' at the cursor.
 
 Latest version:
 https://github.com/utubo/vim-reformatdate
