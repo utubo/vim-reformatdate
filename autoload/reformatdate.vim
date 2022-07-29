@@ -88,6 +88,7 @@ function! s:InitNames() abort
         let l:all += l:n[l:key]
       endif
     endfor
+    let l:all = l:all->sort()->uniq()
     let s:names_pat[l:key]  = '\\(' . join(l:all, '\\|') . '\\)'
   endfor
 endfunction
@@ -121,29 +122,26 @@ function! s:InitFormats() abort
     for l:i in s:NAME_KEYS
       let l:pat = l:pat->substitute('%' . l:i, s:names_pat[l:i], 'g')
     endfor
-    call add(s:fmt, { 'fmt': l:fmt, 'pat': l:pat, 'len': len(strftime(l:fmt)) })
+    call add(s:fmt, { 'fmt': l:fmt, 'pat': l:pat })
   endfor
 endfunction
 
 " Reformat
 function s:FindFmt() abort
   let l:cur = getpos('.')
-  let l:start = 0
-  let l:end = 0
   for l:fmt in s:fmt
-    if search(l:fmt.pat, 'bc', cur[1]) !=# 0
-      let l:start = col('.')
-      call search(l:fmt.pat, 'ce', cur[1])
-      let l:end = col('.')
-      break
+    if search('\V' . l:fmt.pat . '\C', 'bc', cur[1]) ==# 0
+      continue
     endif
+    let l:start = col('.')
+    call search(l:fmt.pat, 'ce', cur[1])
+    if l:cur[2] <= col('.')
+      call setpos('.', l:cur)
+      return [l:fmt, l:start]
+    endif
+    call setpos('.', l:cur)
   endfor
-  call setpos('.', l:cur)
-  if l:start ==# 0 || l:end < l:cur[2]
-    return [{}, 0]
-  else
-    return [l:fmt, l:start]
-  endif
+  return [{}, 0]
 endfunction
 
 function! reformatdate#reformat(date = '.', inc = 0) abort
