@@ -1,11 +1,6 @@
 let s:default_formats = [
-      \'%Y/%m/%d',
-      \'%d-%m-%Y',
-      \'%B %dth, %Y',
-      \'%A',
-      \'%a',
-      \'%B',
-      \'%b',
+      \'%Y/%m/%d', '%d-%m-%Y', '%B %dth, %Y',
+      \'%A', '%a', '%B', '%b',
       \]
 let s:dayname_search_range = 3
 let s:fmt = []
@@ -77,14 +72,14 @@ function! s:InitNames() abort
     endif
     let g:reformatdate_names = s:names_list
   endif
-  call extend(s:names_list, get(g:, 'reformatdate_extend_names', []))
+  let s:names_list += get(g:, 'reformatdate_extend_names', [])
   " Patterns
   let s:names_pat = {}
   for l:key in s:NAME_KEYS
     let l:all = []
     for l:n in s:names_list
       if has_key(l:n, l:key)
-        call extend(l:all, l:n[l:key])
+        let l:all += l:n[l:key]
       endif
     endfor
     let s:names_pat[l:key]  = '\\(' . join(l:all, '\\|') . '\\)'
@@ -109,9 +104,7 @@ function! s:InitFormats() abort
   let g:reformatdate_formats = get(g:, 'reformatdate_formats', s:default_formats)
   let g:reformatdate_extend_formats = get(g:, 'reformatdate_extend_formats', [])
   let s:fmt = []
-  let l:joined = g:reformatdate_formats
-  call extend(l:joined, g:reformatdate_extend_formats)
-  let l:sorted = g:reformatdate_formats
+  let l:sorted = (g:reformatdate_formats + g:reformatdate_extend_formats)
         \->sort({a, b -> s:Mlen(strftime(b)) - s:Mlen(strftime(a))})
         \->uniq()
   for l:fmt in l:sorted
@@ -177,10 +170,7 @@ function! reformatdate#reformat(date = '.', inc = 0) abort
   endif
 
   " from cursorpos
-  let l:ymd = {
-        \'Y': strftime('%Y'), 'm': strftime('%m'), 'd': strftime('%d'),
-        \'a': '', 'A': '', 'b': '', 'B': '', 'dth': '',
-        \}
+  let l:ymd = { 'Y': strftime('%Y'), 'm': strftime('%m'), 'd': strftime('%d') }
   let l:index = 0
   let l:offset = -1
   while 1
@@ -199,13 +189,13 @@ function! reformatdate#reformat(date = '.', inc = 0) abort
   " names
   let l:names = {}
   for l:b in ['B', 'b']
-    if ymd[l:b] !=# ''
+    if has_key(ymd, l:b)
       let l:names[l:b] = s:FindNames(l:b, ymd[l:b])
       let l:ymd.m = index(l:names[l:b], l:ymd[l:b]) + 1
     endif
   endfor
   for l:a in ['A', 'a']
-    if ymd[l:a] !=# '' && l:fmt.fmt !~# '%[YmdbB]'
+    if has_key(ymd, l:a) && l:fmt.fmt !~# '%[YmdbB]'
       let l:names[l:a] = s:FindNames(l:a, ymd[l:a])
       let l:ymd.d += index(l:names[l:a], l:ymd[l:a]) - str2nr(strftime('%w'))
     endif
@@ -226,8 +216,13 @@ function! reformatdate#reformat(date = '.', inc = 0) abort
     endfor
   endif
 
+  " truncate days to prevent e.g. today=7/29, fmt=%m, before=02, after=03
+  if l:fmt.fmt !~# '%[daA]'
+    let l:ymd.d = 1
+  endif
+
   if a:date ==# '.'
-    let l:date = s:YmdToSec(l:ymd['Y'], l:ymd['m'], l:ymd['d'])
+    let l:date = s:YmdToSec(l:ymd.Y, l:ymd.m, l:ymd.d)
   else
     let l:date = a:date
   endif
