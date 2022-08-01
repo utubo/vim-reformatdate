@@ -22,14 +22,14 @@ You can reformat yyyy/mm/dd on cursor.
 call dein('utubo/vim-reformatdate')
 
 " Reformat
-nnoremap <silent> <F5> :call reformatdate#reformat()<CR>
+nnoremap <F5> <Cmd>call reformatdate#reformat()<CR>
 
 " Reset to today
-nnoremap <silent> <F6> :call reformatdate#reformat(localtime())<CR>
+nnoremap <F6> <Cmd>call reformatdate#reformat(localtime())<CR>
 
 " Increment/Decrement days
-nnoremap <silent> <C-a> :<C-u>call reformatdate#inc(v:count)<CR>
-nnoremap <silent> <C-x> :<C-u>call reformatdate#dec(v:count)<CR>
+nnoremap <C-a> <Cmd>call reformatdate#inc(v:count)<CR>
+nnoremap <C-x> <Cmd>call reformatdate#dec(v:count)<CR>
 ```
 - Note
   - If sepalator is `-`, then `<C-a>` will decrement days.
