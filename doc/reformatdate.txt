@@ -62,6 +62,8 @@ INTERFACE					*reformatdate-interface*
 ------------------------------------------------------------------------------
 VARIABLES					*reformatdate-variables*
 
+See `reformatdate#init()`.
+
 g:reformatdate_formats				*g:reformatdate_formats*
 	The support date formats.
 	default value:
@@ -78,6 +80,7 @@ g:reformatdate_extend_formats			*g:reformatdate_extend_formats*
 		  \'%Y,%m,%d',
 		  \'%d,%m',
 		  \]
+		call reformatdate#init()
 <
 	- Note
 	  - You can use `%Y`, `%m`, `%d`, `%a`, `%A`, `%b`, `%B`
@@ -95,6 +98,7 @@ g:reformatdate_extend_names			*g:reformatdate_extend_names*
 		  \}, {
 		  \  'a': ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
 		  \}]
+		call reformatdate#init()
 <
 
 ------------------------------------------------------------------------------
