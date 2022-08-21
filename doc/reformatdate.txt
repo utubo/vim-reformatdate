@@ -62,7 +62,7 @@ INTERFACE					*reformatdate-interface*
 ------------------------------------------------------------------------------
 VARIABLES					*reformatdate-variables*
 
-g:reformatdate_names				*g:reformatdate_names*
+g:reformatdate_formats				*g:reformatdate_formats*
 	The support date formats.
 	default value:
 >
@@ -70,7 +70,7 @@ g:reformatdate_names				*g:reformatdate_names*
 <
 
 
-g:reformatdate_formats				*g:reformatdate_formats*
+g:reformatdate_extend_formats			*g:reformatdate_extend_formats*
 	You can add formats.
 	example:
 >
@@ -83,7 +83,7 @@ g:reformatdate_formats				*g:reformatdate_formats*
 	  - You can use `%Y`, `%m`, `%d`, `%a`, `%A`, `%b`, `%B`
 
 
-g:reformatdate_extend_formats			*g:reformatdate_extend_formats*
+g:reformatdate_extend_names			*g:reformatdate_extend_names*
 	You can add days names and months names.
 	example:
 >
