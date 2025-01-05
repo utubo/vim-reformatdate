@@ -1,5 +1,5 @@
 let s:DEFAULT_FORMATS = [
-      \'%Y/%m/%d', '%d-%m-%Y', '%B %dth, %Y',
+      \'%Y/%m/%d', '%Y-%m-%d', '%d-%m-%Y', '%B %dth, %Y',
       \'%A', '%a', '%B', '%b',
       \]
 let s:NAME_KEYS = ['A', 'a', 'B', 'b']
@@ -178,7 +178,7 @@ function! reformatdate#reformat(date = '.', inc = 0) abort
 
   let l:ymd_match = matchlist(getline('.'), l:fmt.pat, l:start - 1)
 
-  if len(l:ymd_match) ==# 0 || l:ymd_match[0] =~# '^[0-9-]*$'
+  if len(l:ymd_match) ==# 0
     return
   endif
 
